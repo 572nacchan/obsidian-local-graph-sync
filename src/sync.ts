@@ -14,7 +14,12 @@ export async function readGlobalGraphSettings(app: App): Promise<Partial<GraphSe
 			| ((name: string) => Promise<unknown>)
 			| undefined;
 		if (!readConfig) throw new Error('readConfigJson not available');
-		return (await readConfig.call(app.vault, 'graph')) as Partial<GraphSettings>;
+		const raw = await readConfig.call(app.vault, 'graph');
+		if (raw === null || typeof raw !== 'object') {
+			console.warn('[LocalGraphSync] graph.json returned unexpected value:', raw);
+			return null;
+		}
+		return raw as Partial<GraphSettings>;
 	} catch (e) {
 		console.error('[LocalGraphSync] Failed to read graph.json:', e);
 		return null;
@@ -50,7 +55,11 @@ function applyToLeaf(
 	keys: ReadonlyArray<keyof GraphSettings>
 ): void {
 	try {
-		const engine = (leaf.view as unknown as { engine: GraphEngine }).engine;
+		const engine = (leaf.view as unknown as { engine?: GraphEngine }).engine;
+		if (!engine) {
+			console.warn('[LocalGraphSync] engine not found on leaf:', leaf);
+			return;
+		}
 		const current = engine.getOptions();
 
 		// Merge only selected keys, preserving local-graph-specific settings

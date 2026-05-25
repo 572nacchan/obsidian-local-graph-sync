@@ -21,7 +21,7 @@ export interface GraphSettings {
 
 export interface ColorGroup {
 	query: string;
-	color: { a: 1; rgb: number };
+	color: { a: number; rgb: number };
 }
 
 export const SYNC_KEY_GROUPS = {

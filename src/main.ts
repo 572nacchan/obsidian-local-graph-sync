@@ -4,6 +4,7 @@ import { applyToLocalGraphs, readGlobalGraphSettings } from './sync';
 
 export default class LocalGraphSyncPlugin extends Plugin {
 	settings: LocalGraphSyncSettings;
+	private syncTimer: number | null = null;
 
 	async onload() {
 		await this.loadSettings();
@@ -21,12 +22,19 @@ export default class LocalGraphSyncPlugin extends Plugin {
 				this.syncAll();
 			})
 		);
+
+		this.app.workspace.onLayoutReady(() => {
+			this.syncAll();
+		});
 	}
 
-	onunload() {}
+	onunload() {
+		if (this.syncTimer !== null) window.clearTimeout(this.syncTimer);
+	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<LocalGraphSyncSettings>);
+		const saved = await this.loadData();
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, saved ?? {});
 	}
 
 	async saveSettings() {
@@ -34,9 +42,13 @@ export default class LocalGraphSyncPlugin extends Plugin {
 		this.syncAll();
 	}
 
-	private async syncAll() {
-		const graphSettings = await readGlobalGraphSettings(this.app);
-		if (!graphSettings) return;
-		applyToLocalGraphs(this.app, graphSettings, this.settings);
+	private syncAll(): void {
+		if (this.syncTimer !== null) window.clearTimeout(this.syncTimer);
+		this.syncTimer = window.setTimeout(async () => {
+			this.syncTimer = null;
+			const graphSettings = await readGlobalGraphSettings(this.app);
+			if (!graphSettings) return;
+			applyToLocalGraphs(this.app, graphSettings, this.settings);
+		}, 50);
 	}
 }
