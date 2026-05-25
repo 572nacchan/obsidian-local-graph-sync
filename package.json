@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
-	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"name": "obsidian-local-graph-sync",
+	"version": "0.1.0",
+	"description": "Sync global graph settings to all local graphs automatically.",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {
