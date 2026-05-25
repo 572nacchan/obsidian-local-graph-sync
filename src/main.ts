@@ -1,8 +1,14 @@
 import { Events, Plugin } from 'obsidian';
+import { DEFAULT_SETTINGS, LocalGraphSyncSettings, LocalGraphSyncSettingTab } from './settings';
 import { applyToLocalGraphs, readGlobalGraphSettings } from './sync';
 
 export default class LocalGraphSyncPlugin extends Plugin {
+	settings: LocalGraphSyncSettings;
+
 	async onload() {
+		await this.loadSettings();
+		this.addSettingTab(new LocalGraphSyncSettingTab(this.app, this));
+
 		this.registerEvent(
 			this.app.workspace.on('layout-change', () => {
 				this.syncAll();
@@ -19,9 +25,18 @@ export default class LocalGraphSyncPlugin extends Plugin {
 
 	onunload() {}
 
+	async loadSettings() {
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<LocalGraphSyncSettings>);
+	}
+
+	async saveSettings() {
+		await this.saveData(this.settings);
+		this.syncAll();
+	}
+
 	private async syncAll() {
-		const settings = await readGlobalGraphSettings(this.app);
-		if (!settings) return;
-		applyToLocalGraphs(this.app, settings);
+		const graphSettings = await readGlobalGraphSettings(this.app);
+		if (!graphSettings) return;
+		applyToLocalGraphs(this.app, graphSettings, this.settings);
 	}
 }

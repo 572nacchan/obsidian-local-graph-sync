@@ -24,20 +24,9 @@ export interface ColorGroup {
 	color: { a: 1; rgb: number };
 }
 
-// Keys synced from global to local (excludes localJumps/localFile/local*links/scale/close)
-export const SYNC_KEYS: ReadonlyArray<keyof GraphSettings> = [
-	'search',
-	'showTags',
-	'showAttachments',
-	'hideUnresolved',
-	'showOrphans',
-	'colorGroups',
-	'showArrow',
-	'textFadeMultiplier',
-	'nodeSizeMultiplier',
-	'lineSizeMultiplier',
-	'centerStrength',
-	'repelStrength',
-	'linkStrength',
-	'linkDistance',
-];
+export const SYNC_KEY_GROUPS = {
+	filters: ['search', 'showTags', 'showAttachments', 'hideUnresolved', 'showOrphans'],
+	colorGroups: ['colorGroups'],
+	display: ['showArrow', 'textFadeMultiplier', 'nodeSizeMultiplier', 'lineSizeMultiplier'],
+	forces: ['centerStrength', 'repelStrength', 'linkStrength', 'linkDistance'],
+} as const satisfies Record<string, ReadonlyArray<keyof GraphSettings>>;
