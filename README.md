@@ -1,90 +1,64 @@
-# Obsidian Sample Plugin
+# Local Graph Sync
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+[日本語版 README はこちら](README_ja.md)
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+An [Obsidian](https://obsidian.md) plugin that automatically syncs your global graph settings to all open local graphs.
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open modal (simple)" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+## The Problem
 
-## First time developing plugins?
+Obsidian's local graph and global graph share many visual settings (colors, filters, display options, physics), but changes to the global graph are **not** reflected in local graphs. You have to manually reconfigure each local graph every time you update your global graph settings.
 
-Quick starting guide for new plugin devs:
+## What This Plugin Does
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+Whenever your global graph settings change (or a local graph is opened), this plugin reads `graph.json` and applies the matching settings to all open local graphs — automatically.
 
-## Releasing new releases
+**Local-graph-specific settings are preserved:**
+- `localJumps` (depth)
+- `localFile` / `localBacklinks` / `localForelinks` / `localInterlinks`
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+These are never overwritten because they are unique to each local graph.
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+## Settings
 
-## Adding your plugin to the community plugin list
+You can choose which setting groups to sync:
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+| Group | Settings |
+|-------|----------|
+| **Filters** | search, showTags, showAttachments, hideUnresolved, showOrphans |
+| **Color Groups** | colorGroups |
+| **Display** | showArrow, textFadeMultiplier, nodeSizeMultiplier, lineSizeMultiplier |
+| **Forces** | centerStrength, repelStrength, linkStrength, linkDistance |
 
-## How to use
+All groups are enabled by default.
 
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+## Installation
 
-## Manually installing the plugin
+### Manual
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+1. Download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/572nacchan/obsidian-local-graph-sync/releases/latest).
+2. Copy them to `<vault>/.obsidian/plugins/obsidian-local-graph-sync/`.
+3. Reload Obsidian and enable the plugin in **Settings → Community Plugins**.
 
-## Improve code quality with eslint
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- This project already has eslint preconfigured, you can invoke a check by running`npm run lint`
-- Together with a custom eslint [plugin](https://github.com/obsidianmd/eslint-plugin) for Obsidan specific code guidelines.
-- A GitHub action is preconfigured to automatically lint every commit on all branches.
+### BRAT (Beta Reviewers Auto-update Tool)
 
-## Funding URL
+1. Install [BRAT](https://github.com/TfTHacker/obsidian42-brat).
+2. Add `572nacchan/obsidian-local-graph-sync` via **BRAT → Add Beta Plugin**.
 
-You can include funding URLs where people who use your plugin can financially support it.
+## Notes
 
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
+> **⚠️ Unofficial API usage**
+>
+> This plugin relies on `vault.readConfigJson('graph')` and `GraphEngine.setOptions()`, which are internal Obsidian APIs not exposed in the official plugin API. These may break in future Obsidian updates. The plugin will log a warning to the console and silently do nothing if the APIs are unavailable.
 
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
+## Development
+
+```bash
+git clone https://github.com/572nacchan/obsidian-local-graph-sync
+cd obsidian-local-graph-sync
+npm install
+npm run dev
 ```
 
-If you have multiple URLs, you can also do:
+## License
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
-```
-
-## API Documentation
-
-See https://docs.obsidian.md
+[MIT](LICENSE)
