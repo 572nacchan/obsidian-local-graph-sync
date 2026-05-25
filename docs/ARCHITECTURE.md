@@ -61,5 +61,5 @@ LocalGraphView (EJ)
 - [x] `engine.setOptions()` による全パラメータの適用（setViewState不要と判明）
 - [x] `layout-change` イベントフック
 - [x] `config-changed` イベント監視
-- [ ] Vaultで動作確認
+- [x] Vaultで動作確認
 - [ ] （任意）設定画面：同期する項目を選択可能にする
