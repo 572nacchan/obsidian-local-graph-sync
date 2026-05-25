@@ -1,61 +1,48 @@
 import { App, WorkspaceLeaf } from 'obsidian';
-import { GraphSettings } from './types';
+import { GraphSettings, SYNC_KEYS } from './types';
 
-export async function readGlobalGraphSettings(app: App): Promise<GraphSettings | null> {
+type GraphEngine = {
+	getOptions(): Record<string, unknown>;
+	setOptions(options: Record<string, unknown>): void;
+};
+
+export async function readGlobalGraphSettings(app: App): Promise<Partial<GraphSettings> | null> {
 	try {
 		// readConfigJson is unofficial and not typed in obsidian.d.ts
 		const readConfig = (app.vault as unknown as Record<string, unknown>)['readConfigJson'] as
 			| ((name: string) => Promise<unknown>)
 			| undefined;
 		if (!readConfig) throw new Error('readConfigJson not available');
-		return (await readConfig.call(app.vault, 'graph')) as GraphSettings;
+		return (await readConfig.call(app.vault, 'graph')) as Partial<GraphSettings>;
 	} catch (e) {
 		console.error('[LocalGraphSync] Failed to read graph.json:', e);
 		return null;
 	}
 }
 
-export async function applyToLocalGraphs(app: App, settings: GraphSettings): Promise<void> {
+export function applyToLocalGraphs(app: App, settings: Partial<GraphSettings>): void {
 	const leaves = app.workspace.getLeavesOfType('localgraph');
 	for (const leaf of leaves) {
-		await applyToLeaf(leaf, settings);
+		applyToLeaf(leaf, settings);
 	}
 }
 
-async function applyToLeaf(leaf: WorkspaceLeaf, settings: GraphSettings): Promise<void> {
-	// Apply physical/display params via official setViewState
-	const current = leaf.getViewState();
-	const state = current.state ?? {};
-
-	await leaf.setViewState({
-		...current,
-		state: {
-			...state,
-			linksStrength: settings.linksStrength,
-			repelStrength: settings.repelStrength,
-			centerStrength: settings.centerStrength,
-			linkDistance: settings.linkDistance,
-			nodeSize: settings.nodeSize,
-			linkThickness: settings.linkThickness,
-			textFadeThreshold: settings.textFadeThreshold,
-			nodeSizeMode: settings.nodeSizeMode,
-			showTags: settings.showTags,
-			showAttachments: settings.showAttachments,
-			hideUnresolved: settings.hideUnresolved,
-			showOrphans: settings.showOrphans,
-		},
-	});
-
-	// Apply unofficial API params (search / colorGroups)
+function applyToLeaf(leaf: WorkspaceLeaf, settings: Partial<GraphSettings>): void {
 	try {
-		const view = leaf.view as unknown as Record<string, unknown>;
-		if (typeof view['setOptions'] === 'function') {
-			(view['setOptions'] as (o: unknown) => void)({
-				search: settings.search,
-				colorGroups: settings.colorGroups,
-			});
+		const engine = (leaf.view as unknown as { engine: GraphEngine }).engine;
+		const current = engine.getOptions();
+
+		// Merge only SYNC_KEYS, preserving local-graph-specific settings
+		// (localJumps, localFile, localBacklinks, localForelinks, localInterlinks)
+		const merged: Record<string, unknown> = { ...current };
+		for (const key of SYNC_KEYS) {
+			if (settings[key] !== undefined) {
+				merged[key] = settings[key];
+			}
 		}
+
+		engine.setOptions(merged);
 	} catch (e) {
-		console.warn('[LocalGraphSync] Unofficial API failed, skipping search/colorGroups:', e);
+		console.warn('[LocalGraphSync] Failed to apply to leaf:', e);
 	}
 }

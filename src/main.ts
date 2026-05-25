@@ -9,7 +9,7 @@ export default class LocalGraphSyncPlugin extends Plugin {
 			})
 		);
 
-		// 'config-changed' is an unofficial event not typed in obsidian.d.ts
+		// 'config-changed' is unofficial and not typed in obsidian.d.ts
 		this.registerEvent(
 			(this.app.vault as unknown as Events).on('config-changed', () => {
 				this.syncAll();
@@ -22,6 +22,6 @@ export default class LocalGraphSyncPlugin extends Plugin {
 	private async syncAll() {
 		const settings = await readGlobalGraphSettings(this.app);
 		if (!settings) return;
-		await applyToLocalGraphs(this.app, settings);
+		applyToLocalGraphs(this.app, settings);
 	}
 }
