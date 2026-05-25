@@ -33,7 +33,7 @@ export default class LocalGraphSyncPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		const saved = await this.loadData();
+		const saved = await this.loadData() as Partial<LocalGraphSyncSettings> | null;
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, saved ?? {});
 	}
 
@@ -44,11 +44,12 @@ export default class LocalGraphSyncPlugin extends Plugin {
 
 	private syncAll(): void {
 		if (this.syncTimer !== null) window.clearTimeout(this.syncTimer);
-		this.syncTimer = window.setTimeout(async () => {
+		this.syncTimer = window.setTimeout(() => {
 			this.syncTimer = null;
-			const graphSettings = await readGlobalGraphSettings(this.app);
-			if (!graphSettings) return;
-			applyToLocalGraphs(this.app, graphSettings, this.settings);
+			void readGlobalGraphSettings(this.app).then(graphSettings => {
+				if (!graphSettings) return;
+				applyToLocalGraphs(this.app, graphSettings, this.settings);
+			});
 		}, 50);
 	}
 }
