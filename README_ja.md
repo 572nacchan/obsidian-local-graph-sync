@@ -31,7 +31,7 @@ Obsidian のローカルグラフとグローバルグラフは、カラーグ�
 
 ### 手動インストール
 
-1. [最新リリース](https://github.com/572nacchan/obsidian-local-graph-sync/releases/latest) から `main.js`・`manifest.json`・`styles.css` をダウンロード
+1. [最新リリース](https://github.com/572nacchan/obsidian-local-graph-sync/releases/latest) から `main.js`・`manifest.json` をダウンロード
 2. `<Vault>/.obsidian/plugins/obsidian-local-graph-sync/` にコピー
 3. Obsidian を再読み込みして **設定 → コミュニティプラグイン** で有効化
 

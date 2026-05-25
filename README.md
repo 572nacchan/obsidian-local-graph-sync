@@ -35,7 +35,7 @@ All groups are enabled by default.
 
 ### Manual
 
-1. Download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/572nacchan/obsidian-local-graph-sync/releases/latest).
+1. Download `main.js` and `manifest.json` from the [latest release](https://github.com/572nacchan/obsidian-local-graph-sync/releases/latest).
 2. Copy them to `<vault>/.obsidian/plugins/obsidian-local-graph-sync/`.
 3. Reload Obsidian and enable the plugin in **Settings → Community Plugins**.
 
