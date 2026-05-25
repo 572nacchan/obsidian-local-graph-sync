@@ -36,12 +36,12 @@ export function applyToLocalGraphs(
 }
 
 function buildSyncKeys(syncSettings: LocalGraphSyncSettings): ReadonlyArray<keyof GraphSettings> {
-	const keys: (keyof GraphSettings)[] = [];
-	if (syncSettings.syncFilters) keys.push(...SYNC_KEY_GROUPS.filters);
-	if (syncSettings.syncColorGroups) keys.push(...SYNC_KEY_GROUPS.colorGroups);
-	if (syncSettings.syncDisplay) keys.push(...SYNC_KEY_GROUPS.display);
-	if (syncSettings.syncForces) keys.push(...SYNC_KEY_GROUPS.forces);
-	return keys;
+	return [
+		...(syncSettings.syncFilters ? SYNC_KEY_GROUPS.filters : []),
+		...(syncSettings.syncColorGroups ? SYNC_KEY_GROUPS.colorGroups : []),
+		...(syncSettings.syncDisplay ? SYNC_KEY_GROUPS.display : []),
+		...(syncSettings.syncForces ? SYNC_KEY_GROUPS.forces : []),
+	];
 }
 
 function applyToLeaf(

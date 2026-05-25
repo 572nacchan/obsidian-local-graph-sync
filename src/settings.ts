@@ -27,52 +27,25 @@ export class LocalGraphSyncSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		new Setting(containerEl)
-			.setName('フィルター')
-			.setDesc('search・showTags・showAttachments・hideUnresolved・showOrphans')
-			.addToggle(toggle =>
-				toggle
-					.setValue(this.plugin.settings.syncFilters)
-					.onChange(async value => {
-						this.plugin.settings.syncFilters = value;
-						await this.plugin.saveSettings();
-					})
-			);
+		const groups: Array<{ name: string; desc: string; key: keyof LocalGraphSyncSettings }> = [
+			{ name: 'フィルター', desc: 'search・showTags・showAttachments・hideUnresolved・showOrphans', key: 'syncFilters' },
+			{ name: 'カラーグループ', desc: 'colorGroups', key: 'syncColorGroups' },
+			{ name: '表示', desc: 'showArrow・textFadeMultiplier・nodeSizeMultiplier・lineSizeMultiplier', key: 'syncDisplay' },
+			{ name: '物理演算', desc: 'centerStrength・repelStrength・linkStrength・linkDistance', key: 'syncForces' },
+		];
 
-		new Setting(containerEl)
-			.setName('カラーグループ')
-			.setDesc('colorGroups')
-			.addToggle(toggle =>
-				toggle
-					.setValue(this.plugin.settings.syncColorGroups)
-					.onChange(async value => {
-						this.plugin.settings.syncColorGroups = value;
-						await this.plugin.saveSettings();
-					})
-			);
-
-		new Setting(containerEl)
-			.setName('表示')
-			.setDesc('showArrow・textFadeMultiplier・nodeSizeMultiplier・lineSizeMultiplier')
-			.addToggle(toggle =>
-				toggle
-					.setValue(this.plugin.settings.syncDisplay)
-					.onChange(async value => {
-						this.plugin.settings.syncDisplay = value;
-						await this.plugin.saveSettings();
-					})
-			);
-
-		new Setting(containerEl)
-			.setName('物理演算')
-			.setDesc('centerStrength・repelStrength・linkStrength・linkDistance')
-			.addToggle(toggle =>
-				toggle
-					.setValue(this.plugin.settings.syncForces)
-					.onChange(async value => {
-						this.plugin.settings.syncForces = value;
-						await this.plugin.saveSettings();
-					})
-			);
+		for (const { name, desc, key } of groups) {
+			new Setting(containerEl)
+				.setName(name)
+				.setDesc(desc)
+				.addToggle(toggle =>
+					toggle
+						.setValue(this.plugin.settings[key])
+						.onChange(async value => {
+							this.plugin.settings[key] = value;
+							await this.plugin.saveSettings();
+						})
+				);
+		}
 	}
 }
